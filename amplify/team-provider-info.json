@@ -14,6 +14,12 @@
     "categories": {
       "auth": {
         "reactamplifyexample3123f863": {}
+      },
+      "function": {
+        "peoplefunction": {
+          "deploymentBucketName": "amplify-reactamplifyexample-dev-144658-deployment",
+          "s3Key": "amplify-builds/peoplefunction-39554c79664b6b644846-build.zip"
+        }
       }
     }
   }

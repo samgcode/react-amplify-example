@@ -2,57 +2,34 @@ import { useReducer } from 'react'
 import logo from './logo.svg';
 import './App.css';
 
-import { Auth } from 'aws-amplify'
+import { withAuthenticator } from 'aws-amplify-react'
+import { API } from 'aws-amplify'
 
 function App() {
   const [state, setState] = useReducer(
     (state, newState) => ({...state, ...newState}),
-    { username: '', password: '', email: '', phone_nuber: '', authenticationCode: '', step: 0 }
+    { people: [] }
   )
-  function onChange(event) {
-    setState({ [event.target.name]: event.target.value })
-  }
-  async function signUp () {
-    const { username, password, email, phone_nuber } = state
-    try {
-      await Auth.signUp({ username, password, adttributes: { email, phone_nuber } })
-      console.log('successfully signed up')
-      setState({ step: 1 })
-    } catch(err) {
-      console.log(`Error occured while signging up: ${err}`)
-    }
-  }
-  async function confirmSignUp () {
-    const { username, authenticationCode } = state
-    try {
-      await Auth.confirmSignUp(username, authenticationCode)
-      console.log('sign up confirmed')
-    } catch(err) {
-      console.log(`Error occured while confirming sign up: ${err}`)
-    }
+
+  async function componenetDidMount() {
+    const data = await API.get('peopleapi', '/people')
+    setState({ people: data.people })
   }
 
+  componenetDidMount()
   return (
     <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <h1 className="App-title">Welcome to React</h1>
+      </header>
       {
-        state.step === 0 && (
+        state.people.map((person, i) => (
           <div>
-            <input placeholder='username' onChange={onChange} name='username' style={styles.input}/>
-            <input placeholder='password' onChange={onChange} name='password' type='password' style={styles.input}/>
-            <input placeholder='email' onChange={onChange} name='email' style={styles.input}/>
-            <input placeholder='phone number' onChange={onChange} name='phone_number' style={styles.input}/>
-            <button onClick={signUp}>Sign Up</button>
+            <h3>{ person.name }</h3>
+            <p>{ person.hair_color }</p>
           </div>
-        )
-      }
-      {
-        state.step === 1 && (
-          <div>
-            <input placeholder='username' onChange={onChange} name='username' style={styles.input}/>
-            <input placeholder='authentication code' onChange={onChange} name='authenticationCode' style={styles.input}/>
-            <button onClick={confirmSignUp}>Confirm Sign Up</button>
-          </div>
-        )
+        ))
       }
     </div>
   );
@@ -64,4 +41,4 @@ const styles = {
   }
 }
 
-export default App
+export default withAuthenticator(App, { includeGreetings: true })
