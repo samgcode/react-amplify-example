@@ -3,34 +3,43 @@ import logo from './logo.svg';
 import './App.css';
 
 import { withAuthenticator } from 'aws-amplify-react'
-import { API } from 'aws-amplify'
+import { Storage } from 'aws-amplify'
 
 function App() {
   const [state, setState] = useReducer(
     (state, newState) => ({...state, ...newState}),
-    { people: [] }
+    { fileUrl: '', file: '', filename: '' }
   )
 
-  async function componenetDidMount() {
-    const data = await API.get('peopleapi', '/people')
-    setState({ people: data.people })
+  function handleChange(event) {
+    const file = event.target.files[0]
+    setState({
+      fileUrl: URL.createObjectURL(file),
+      file,
+      filename: file.name
+    })
   }
 
-  componenetDidMount()
+  function saveFile() {
+    Storage.put(state.filename, state.file)
+      .then(() => {
+        console.log('file saved succesfuly')
+        setState({ fileUrl: '', file: '', filename: '' })
+      })
+      .catch(err => {
+        console.log('error uploading file ', err)
+      })
+  }
+
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Welcome to React</h1>
       </header>
-      {
-        state.people.map((person, i) => (
-          <div>
-            <h3>{ person.name }</h3>
-            <p>{ person.hair_color }</p>
-          </div>
-        ))
-      }
+      <input type='file' onChange={handleChange} />
+      <img src={state.fileUrl} />
+      <button onClick={saveFile}>Save File</button>
     </div>
   );
 }
