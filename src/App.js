@@ -11,12 +11,19 @@ function App() {
     { fileUrl: '', file: '', filename: '' }
   )
 
-  function handleChange(event) {
+  function handleFileChange(event) {
     const file = event.target.files[0]
     setState({
       fileUrl: URL.createObjectURL(file),
       file,
       filename: file.name
+    })
+  }
+
+  function handleNameChange(event) {
+    const filename = event.target.value
+    setState({
+      filename
     })
   }
 
@@ -31,15 +38,31 @@ function App() {
       })
   }
 
+  function getFile() {
+    console.log(state.filename)
+    Storage.get(state.filename)
+      .then(url => {
+        console.log(url)
+        setState({fileUrl: url})
+      })
+      .catch(err => {
+        console.log('error occured while fetching image ', err)
+      })
+  }
+
+
+  // componentDidMount()
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Welcome to React</h1>
       </header>
-      <input type='file' onChange={handleChange} />
+      <input type='file' onChange={handleFileChange} />
+      <input type='text' onChange={handleNameChange} placeholder='filename' />
       <img src={state.fileUrl} />
       <button onClick={saveFile}>Save File</button>
+      <button onClick={getFile}>Get File</button>
     </div>
   );
 }
